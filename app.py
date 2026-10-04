@@ -27,6 +27,18 @@ REPLY RULES
   warm farewell, NO question, and set "end": true. Otherwise "end": false.
 - List every noun that appears in her message or in your reply in "nouns" (singular, with its article).
 
+ROLE-PLAY RULES
+- You are playing a character in the selected scenario.
+- Never describe the scenario from an outside perspective.
+- Never say "Ich bin in [location]" simply because that is the scenario.
+- Act as the person the student would normally interact with.
+- For example:
+  - In der Bäckerei → you are the baker, student is the customer.
+  - Beim Einkaufen → you are the shop assistant, student is the customer.
+  - Beim Arzt → you are the doctor, student is the patient.
+  - Im Restaurant → you are the waiter, student is the customer.
+  - Freie Unterhaltung → you are a normal conversation partner.
+
 CORRECTION RULES (most important)
 - If her message has a grammar, word-order or article error, fill "correction" for the ONE most important error.
   Otherwise "correction": null. Ignore capitalization and punctuation slips (the input comes from speech-to-text).
@@ -68,9 +80,29 @@ OUTPUT: return ONLY JSON, no markdown:
  "nouns": [{"article": "der|die|das", "word": str, "en": str}],
  "end": bool}"""
 
-SCENARIOS = ["Beim Bäcker (bakery)", "Beim Arzt (doctor)", "Anmeldung (registration office)",
-             "Im Restaurant", "Freie Unterhaltung (free chat)"]
-
+# SCENARIOS = ["Im Restaurant","Beim Einkaufen","In der Bäckerei", "Beim Arzt", "Anmeldung","Freie Unterhaltung (free chat)"]
+SCENARIOS = {
+    "Im Restaurant": {
+            "role": "You are a waiter or waitress working in a restaurant. The student is the customer.",
+            "context": "The student has come to the restaurant to order food and drinks, ask about the menu, and pay the bill."
+        },
+    "In der Bäckerei": {
+        "role": "You are the baker working in a bakery. The student is the customer.",
+        "context": "The student has come into the bakery to buy bread, pastries, or drinks."
+    },
+    "Beim Einkaufen": {
+        "role": "You are a shop assistant. The student is the customer.",
+        "context": "The student is shopping and may ask about products, prices, sizes, or colors."
+    },
+    "Beim Arzt": {
+        "role": "You are the doctor. The student is the patient.",
+        "context": "The student has come to the doctor's office and needs to describe how they feel."
+    },
+    "Freie Unterhaltung": {
+        "role": "You are a friendly German-speaking conversation partner.",
+        "context": "Have a casual everyday conversation with the student."
+    }
+}
 BYE = re.compile(r"\b(tsch(ü|u)ss?|tschau|ciao|auf wiedersehen|bis bald|bis später|bis morgen)\b", re.I)
 
 # CSS = """
@@ -219,8 +251,33 @@ def cur():
 
 def ask_gemma(history, scenario):
     # Gemma on the Gemini API takes no system role, so the instructions go into the first user turn.
-    first = (SYSTEM.replace("__STUDENT__", STUDENT)
-             + f"\n\nScenario: {scenario}. Start the role-play with a short greeting and a question.")
+    # first = (SYSTEM.replace("__STUDENT__", STUDENT)
+    #          + f"\n\nScenario: {scenario}. Start the role-play with a short greeting and a question.")
+    scenario_info = SCENARIOS[scenario]
+
+    first = (
+        SYSTEM.replace("__STUDENT__", STUDENT)
+        + f"""
+
+    ROLE-PLAY SCENARIO: {scenario}
+
+    YOUR ROLE:
+    {scenario_info["role"]}
+
+    CONTEXT:
+    {scenario_info["context"]}
+
+    IMPORTANT:
+    - Stay in your assigned role throughout the conversation.
+    - Do NOT tell the student that you are "at" the location.
+    - Do NOT say things like "Ich bin in der Bäckerei."
+    - Speak as the person the student would actually interact with.
+    - The student is the customer/patient/traveller as described above.
+    - Start the role-play naturally with a short greeting and a question.
+
+    Start now.
+    """
+    )
     turns = [("user", first)] + [("model" if h["role"] == "assistant" else "user", h["content"]) for h in history]
     contents = [types.Content(role=r, parts=[types.Part(text=t)]) for r, t in turns]
     out = llm.models.generate_content(
