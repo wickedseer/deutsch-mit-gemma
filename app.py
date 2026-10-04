@@ -73,21 +73,109 @@ SCENARIOS = ["Beim Bäcker (bakery)", "Beim Arzt (doctor)", "Anmeldung (registra
 
 BYE = re.compile(r"\b(tsch(ü|u)ss?|tschau|ciao|auf wiedersehen|bis bald|bis später|bis morgen)\b", re.I)
 
+# CSS = """
+# <style>
+# #MainMenu, footer {visibility: hidden;}
+# header[data-testid="stHeader"] {height: 3rem; background: #ffffff;}
+# .block-container {max-width: 760px; padding-top: 3rem;}
+# [data-testid="stLayoutWrapper"]:has(> .st-key-hdr) {position: sticky; top: 3rem; z-index: 99; background: #ffffff;}
+# .st-key-hdr {background: #ffffff; padding: 0.5rem 0 0.9rem 0; border-bottom: 1px solid #ececef;}
+# .brand {font-size: 1.7rem; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1;}
+# .sub {color: #6b7280; font-size: 0.85rem; margin-top: 0.2rem;}
+# [data-testid="stChatMessage"] {background: #f6f7f9; border-radius: 12px;}
+# .card {border: 1px solid #ececef; border-radius: 14px; padding: 2.6rem 1rem; text-align: center;
+#        background: #fafafb; margin: 0.8rem 0 1rem 0;}
+# .card .de {font-size: 2.2rem; font-weight: 600;}
+# .card .en {color: #6b7280; margin-top: 0.3rem;}
+# .card .hint {color: #9ca3af; font-size: 0.85rem; margin-top: 1.2rem;}
+# </style>
+# """
+
 CSS = """
 <style>
-#MainMenu, footer {visibility: hidden;}
-header[data-testid="stHeader"] {height: 3rem; background: #ffffff;}
-.block-container {max-width: 760px; padding-top: 3rem;}
-[data-testid="stLayoutWrapper"]:has(> .st-key-hdr) {position: sticky; top: 3rem; z-index: 99; background: #ffffff;}
-.st-key-hdr {background: #ffffff; padding: 0.5rem 0 0.9rem 0; border-bottom: 1px solid #ececef;}
-.brand {font-size: 1.7rem; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1;}
-.sub {color: #6b7280; font-size: 0.85rem; margin-top: 0.2rem;}
-[data-testid="stChatMessage"] {background: #f6f7f9; border-radius: 12px;}
-.card {border: 1px solid #ececef; border-radius: 14px; padding: 2.6rem 1rem; text-align: center;
-       background: #fafafb; margin: 0.8rem 0 1rem 0;}
-.card .de {font-size: 2.2rem; font-weight: 600;}
-.card .en {color: #6b7280; margin-top: 0.3rem;}
-.card .hint {color: #9ca3af; font-size: 0.85rem; margin-top: 1.2rem;}
+#MainMenu, footer {
+    visibility: hidden;
+}
+
+header[data-testid="stHeader"] {
+    height: 3rem;
+    background: var(--background-color);
+}
+
+.block-container {
+    max-width: 760px;
+    padding-top: 3rem;
+}
+
+/* Sticky header */
+[data-testid="stLayoutWrapper"]:has(> .st-key-hdr) {
+    position: sticky;
+    top: 3rem;
+    z-index: 99;
+    background: var(--background-color);
+}
+
+.st-key-hdr {
+    background: var(--background-color);
+    padding: 0.5rem 0 0.9rem 0;
+    border-bottom: 1px solid var(--secondary-background-color);
+}
+
+/* Brand */
+.brand {
+    font-size: 1.7rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text-color);
+}
+
+.sub {
+    color: var(--text-color);
+    opacity: 0.65;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+}
+
+/* Chat */
+[data-testid="stChatMessage"] {
+    background: var(--secondary-background-color);
+    border-radius: 12px;
+}
+
+/* Flashcard */
+.card {
+    border: 1px solid var(--secondary-background-color);
+    border-radius: 14px;
+    padding: 2.6rem 1rem;
+    text-align: center;
+    background: var(--secondary-background-color);
+    margin: 0.8rem 0 1rem 0;
+}
+
+.card .de {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.card .en {
+    color: var(--text-color);
+    opacity: 0.65;
+    margin-top: 0.3rem;
+}
+
+.card .hint {
+    color: var(--text-color);
+    opacity: 0.45;
+    font-size: 0.85rem;
+    margin-top: 1.2rem;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: var(--secondary-background-color);
+}
 </style>
 """
 
