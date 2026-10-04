@@ -80,12 +80,11 @@ OUTPUT: return ONLY JSON, no markdown:
  "nouns": [{"article": "der|die|das", "word": str, "en": str}],
  "end": bool}"""
 
-# SCENARIOS = ["Im Restaurant","Beim Einkaufen","In der Bäckerei", "Beim Arzt", "Anmeldung","Freie Unterhaltung (free chat)"]
 SCENARIOS = {
     "Im Restaurant": {
-            "role": "You are a waiter or waitress working in a restaurant. The student is the customer.",
-            "context": "The student has come to the restaurant to order food and drinks, ask about the menu, and pay the bill."
-        },
+        "role": "You are a waiter or waitress working in a restaurant. The student is the customer.",
+        "context": "The student has come to the restaurant to order food and drinks, ask about the menu, and pay the bill."
+    },
     "In der Bäckerei": {
         "role": "You are the baker working in a bakery. The student is the customer.",
         "context": "The student has come into the bakery to buy bread, pastries, or drinks."
@@ -103,113 +102,47 @@ SCENARIOS = {
         "context": "Have a casual everyday conversation with the student."
     }
 }
+
 BYE = re.compile(r"\b(tsch(ü|u)ss?|tschau|ciao|auf wiedersehen|bis bald|bis später|bis morgen)\b", re.I)
 
-# CSS = """
-# <style>
-# #MainMenu, footer {visibility: hidden;}
-# header[data-testid="stHeader"] {height: 3rem; background: #ffffff;}
-# .block-container {max-width: 760px; padding-top: 3rem;}
-# [data-testid="stLayoutWrapper"]:has(> .st-key-hdr) {position: sticky; top: 3rem; z-index: 99; background: #ffffff;}
-# .st-key-hdr {background: #ffffff; padding: 0.5rem 0 0.9rem 0; border-bottom: 1px solid #ececef;}
-# .brand {font-size: 1.7rem; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1;}
-# .sub {color: #6b7280; font-size: 0.85rem; margin-top: 0.2rem;}
-# [data-testid="stChatMessage"] {background: #f6f7f9; border-radius: 12px;}
-# .card {border: 1px solid #ececef; border-radius: 14px; padding: 2.6rem 1rem; text-align: center;
-#        background: #fafafb; margin: 0.8rem 0 1rem 0;}
-# .card .de {font-size: 2.2rem; font-weight: 600;}
-# .card .en {color: #6b7280; margin-top: 0.3rem;}
-# .card .hint {color: #9ca3af; font-size: 0.85rem; margin-top: 1.2rem;}
-# </style>
-# """
-
+# Streamlit does not expose its theme colors as CSS variables on the page, so `var(--background-color)` resolves to
+# nothing and the sticky header ends up transparent (chat text shows through it). The header needs a real, opaque
+# color: __BG__ is filled in with the active theme's page background (see page_bg). Everything else uses neutral
+# translucent grey, which looks right on both light and dark themes.
 CSS = """
 <style>
-#MainMenu, footer {
-    visibility: hidden;
-}
+#MainMenu, footer {visibility: hidden;}
+header[data-testid="stHeader"] {height: 3rem; background: __BG__;}
+.block-container {max-width: 760px; padding-top: 3rem;}
 
-header[data-testid="stHeader"] {
-    height: 3rem;
-    background: var(--background-color);
-}
+/* Sticky header: the wrapper is what sticks; both layers are opaque so nothing shows through */
+[data-testid="stLayoutWrapper"]:has(> .st-key-hdr) {position: sticky; top: 3rem; z-index: 99; background: __BG__;}
+.st-key-hdr {background: __BG__; padding: 0.5rem 0 0.9rem 0; border-bottom: 1px solid rgba(127,127,127,0.22);}
 
-.block-container {
-    max-width: 760px;
-    padding-top: 3rem;
-}
+.brand {font-size: 1.7rem; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1;}
+.sub {opacity: 0.65; font-size: 0.85rem; margin-top: 0.2rem;}
 
-/* Sticky header */
-[data-testid="stLayoutWrapper"]:has(> .st-key-hdr) {
-    position: sticky;
-    top: 3rem;
-    z-index: 99;
-    background: var(--background-color);
-}
+[data-testid="stChatMessage"] {background: rgba(127,127,127,0.10); border-radius: 12px;}
 
-.st-key-hdr {
-    background: var(--background-color);
-    padding: 0.5rem 0 0.9rem 0;
-    border-bottom: 1px solid var(--secondary-background-color);
-}
-
-/* Brand */
-.brand {
-    font-size: 1.7rem;
-    font-weight: 650;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    color: var(--text-color);
-}
-
-.sub {
-    color: var(--text-color);
-    opacity: 0.65;
-    font-size: 0.85rem;
-    margin-top: 0.2rem;
-}
-
-/* Chat */
-[data-testid="stChatMessage"] {
-    background: var(--secondary-background-color);
-    border-radius: 12px;
-}
-
-/* Flashcard */
-.card {
-    border: 1px solid var(--secondary-background-color);
-    border-radius: 14px;
-    padding: 2.6rem 1rem;
-    text-align: center;
-    background: var(--secondary-background-color);
-    margin: 0.8rem 0 1rem 0;
-}
-
-.card .de {
-    font-size: 2.2rem;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.card .en {
-    color: var(--text-color);
-    opacity: 0.65;
-    margin-top: 0.3rem;
-}
-
-.card .hint {
-    color: var(--text-color);
-    opacity: 0.45;
-    font-size: 0.85rem;
-    margin-top: 1.2rem;
-}
-
-/* Sidebar */
-[data-testid="stSidebar"] {
-    background: var(--secondary-background-color);
-}
+.card {border: 1px solid rgba(127,127,127,0.22); border-radius: 14px; padding: 2.6rem 1rem; text-align: center;
+       background: rgba(127,127,127,0.07); margin: 0.8rem 0 1rem 0;}
+.card .de {font-size: 2.2rem; font-weight: 600;}
+.card .en {opacity: 0.65; margin-top: 0.3rem;}
+.card .hint {opacity: 0.45; font-size: 0.85rem; margin-top: 1.2rem;}
 </style>
 """
+
+
+def page_bg():
+    """Page background of the active theme (config.toml wins, otherwise follow light/dark)."""
+    configured = st.get_option("theme.backgroundColor")
+    if configured:
+        return configured
+    try:
+        return "#0e1117" if st.context.theme.type == "dark" else "#ffffff"
+    except Exception:
+        return "#ffffff"
+
 
 llm = genai.Client(api_key=API_KEY)
 el = ElevenLabs(api_key=EL_KEY) if EL_KEY else None
@@ -251,8 +184,6 @@ def cur():
 
 def ask_gemma(history, scenario):
     # Gemma on the Gemini API takes no system role, so the instructions go into the first user turn.
-    # first = (SYSTEM.replace("__STUDENT__", STUDENT)
-    #          + f"\n\nScenario: {scenario}. Start the role-play with a short greeting and a question.")
     scenario_info = SCENARIOS[scenario]
 
     first = (
@@ -413,7 +344,7 @@ def process(text, scenario, audio=None):
 
 # ---------- UI ----------
 st.set_page_config(page_title=APP, page_icon="💬")
-st.markdown(CSS, unsafe_allow_html=True)
+st.markdown(CSS.replace("__BG__", page_bg()), unsafe_allow_html=True)
 mem = load_mem()
 ss = st.session_state
 
